@@ -4,38 +4,22 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 public class App {
-    public static void main(String[] args) throws IOException {
-        List<Post> posts = new ArrayList<>();
-        System.out.println("Connecting to main page ");
-        Document doc = Jsoup.connect("https://4pda.to/").get();
-        Elements postTitleElements = doc.getElementsByAttributeValue("itemprop", "url");
-
-        for (Element postTitleElement : postTitleElements) {
-            String detailsLink = postTitleElement.attr("href");
-            Post post = new Post();
-            post.setDetailLink(detailsLink);
-            post.setTitle(postTitleElement.attr("title"));
-            System.out.println("Connecting to post: " + detailsLink);
-            Document postDetailsDoc = Jsoup.connect(detailsLink).get();
-            try {
-                Element authorElement = postDetailsDoc.getElementsByClass("name").first().child(0);
-                post.setAuthor(authorElement.text());
-                post.setDetailLink(authorElement.attr("href"));
-                post.setDateOfCreated(postDetailsDoc.getElementsByClass("date").first().text());
-            } catch (NullPointerException e) {
-                post.setAuthor("Author not determinated");
-                post.setAuthorDetailsLink("No link");
-                post.setDateOfCreated("No date");
-            }
-            posts.add(post);
+    public static void main(String[] args) throws InterruptedException {
+        System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
+        WebDriver webDriver = new ChromeDriver();
+        webDriver.get("https://4pda.to/");
+        for (int i = 2; i <= 7; i++) {
+            WebElement paginationBtn = webDriver.findElement(By.xpath(
+                    "//*[@id=\"j31jcmz2kIq6\"]/ul/li["+i+"]/a"));
+            Thread.sleep(1000);
+            paginationBtn.click();
         }
-
-        posts.forEach(System.out::println);
+        webDriver.quit();
     }
 }
